@@ -30,8 +30,8 @@ with st.sidebar:
 # 如下所示，当代码编辑器发生更改时，会话状态就会被更新
 # 然后会被读入至 Nivo Bump 图并将其绘制出来
 
-if "data" not in st.session_state:
-    st.session_state.data = Path("data.json").read_text()
+# if "data" not in st.session_state:
+#     st.session_state.data = Path("data.json").read_text()
 
 # 定义默认的仪表盘布局
 # 默认情况下仪表盘会分为 12 列
