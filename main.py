@@ -16,7 +16,7 @@ model = ChatOpenAI(
 agent = create_agent(
     model=model,
     tools=[],
-    system_prompt="你是一个专业的助手，你可以回答用户的问题。内容要精简，不要超过100个字符。",
+    system_prompt="你是一个专业的助手，你可以回答用户的问题。",
 )
 
 
