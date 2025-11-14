@@ -16,3 +16,7 @@ df = pd.DataFrame({
      'second column': [10, 20, 30, 40, 50]
      })
 st.write(df)
+
+
+age = st.slider('How old are you?', 0, 130, 25)
+st.write("I'm ", age, 'years old')
