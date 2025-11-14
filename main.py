@@ -1,7 +1,7 @@
 import streamlit as st
 # Add a selectbox to the sidebar:
 add_selectbox = st.sidebar.selectbox(
-    'How would :blue[you] like to be contacted?:sunglasses:',
+    'How would :blue[you] :red[like] to be contacted?:sunglasses:',
     ('Email', 'Home phone', 'Mobile phone')
 )
 
