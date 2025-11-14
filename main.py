@@ -20,7 +20,7 @@ agent = create_agent(
 )
 
 
-st.set_page_config(page_title="多轮对话 Demo", page_icon="🤖", layout="centered")
+st.set_page_config(page_title="我是AI助手，有问题找我", page_icon="🤖", layout="centered")
 st.title("🤖 多轮对话聊天 Demo")
 
 # 初始化 session_state
