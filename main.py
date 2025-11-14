@@ -41,7 +41,7 @@ if prompt := st.chat_input("请输入内容..."):
 
     # 2. 调用你的大模型（这里先用模拟回复示范）
     # reply = f"AI：你刚才说的是：{prompt}"
-    result = agent.invoke({"messages":HumanMessage(content="你好，我是张三，你是谁?")})
+    result = agent.invoke({"messages":HumanMessage(content=prompt)})
     # print(result["messages"][-1].content)
     reply = result["messages"][-1].content
 
