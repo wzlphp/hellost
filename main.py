@@ -20,11 +20,6 @@ agent = create_agent(
 )
 
 
-result = agent.invoke({"messages":HumanMessage(content="你好，我是张三，你是谁?")})
-print(result.content)
-exit()
-
-
 st.set_page_config(page_title="多轮对话 Demo", page_icon="🤖")
 st.title("🤖 多轮对话聊天 Demo")
 
@@ -46,8 +41,9 @@ if prompt := st.chat_input("请输入内容..."):
 
     # 2. 调用你的大模型（这里先用模拟回复示范）
     # reply = f"AI：你刚才说的是：{prompt}"
-    result = agent.invoke(prompt)
-    reply = result.content
+    result = agent.invoke({"messages":HumanMessage(content="你好，我是张三，你是谁?")})
+    # print(result["messages"][-1].content)
+    reply = result["messages"][-1].content
 
     # 3. 显示 AI 消息并保存
     st.chat_message("assistant").write(reply)
