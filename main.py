@@ -17,3 +17,12 @@ import streamlit as st
 import pandas as pd
 from datetime import time, datetime
 ''')
+
+
+st.header("_Streamlit_ is :blue[cool] :sunglasses:")
+st.header("This is a header with a divider", divider="gray")
+st.header("These headers have rotating dividers", divider=True, anchor=False)
+st.header("One", divider=True)
+st.header("Two", divider=False)
+st.header("Three", divider=True)
+st.header("Four", divider=True)
