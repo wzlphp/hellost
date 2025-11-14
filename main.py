@@ -13,7 +13,7 @@ model = ChatOpenAI(
 )
 
 agent = create_agent(
-    llm=model,
+    model=model,
     tools=[],
     system_message="你是一个专业的助手，你可以回答用户的问题。内容要精简，不要超过100个字符。",
 )
