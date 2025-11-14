@@ -21,7 +21,7 @@ agent = create_agent(
 
 
 st.set_page_config(page_title="我是AI助手，有问题找我", page_icon="🤖", layout="centered")
-st.title("🤖 我是AI助手，有问题找我", anchor=False)
+st.markdown("<h3 style='text-align: center;'>🤖 我是AI助手，有问题找我</h3>", unsafe_allow_html=True)
 
 # 初始化 session_state
 if "messages" not in st.session_state:
