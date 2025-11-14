@@ -11,7 +11,7 @@ add_slider = st.sidebar.slider(
     0.0, 100.0, (25.0, 75.0)
 )
 
-st.badger('这是一个错误信息')
+st.badge('这是一个错误信息')
 st.code('''
 import streamlit as st
 import pandas as pd
