@@ -1,3 +1,4 @@
+from langchain_core.messages import HumanMessage
 import streamlit as st
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
@@ -17,6 +18,12 @@ agent = create_agent(
     tools=[],
     system_prompt="你是一个专业的助手，你可以回答用户的问题。内容要精简，不要超过100个字符。",
 )
+
+
+result = agent.invoke({"messages":HumanMessage(content="你好，我是张三，你是谁?")})
+print(result.content)
+exit()
+
 
 st.set_page_config(page_title="多轮对话 Demo", page_icon="🤖")
 st.title("🤖 多轮对话聊天 Demo")
