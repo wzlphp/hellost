@@ -24,7 +24,7 @@ st.header("This is a header with a divider", divider="gray")
 st.header("These headers have rotating dividers", divider=True, anchor=False)
 st.header("One", divider=True)
 st.header("Two", divider=False)
-st.header("Three", divider=True)
-st.header("Four", divider=True)
+st.header("Three这里很宽很宽哦", divider=True, width=10)
+st.header("Four", divider=True, help="这是一个帮助信息")
 
 
