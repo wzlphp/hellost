@@ -1,4 +1,22 @@
 import streamlit as st
+from langchain.agents import create_agent
+from langchain_openai import ChatOpenAI
+from langchain.tools import tool
+import json
+ 
+ 
+# 定义模型
+model = ChatOpenAI(
+    model="deepseek/deepseek-v3.1-terminus",
+    api_key="sk-fc27feb2aa6d3dac1131181fbde118073ed41863871113bf8b1ff24475483863",
+    base_url="https://openai.qiniu.com/v1",
+)
+
+agent = create_agent(
+    llm=model,
+    tools=[],
+    system_message="你是一个专业的助手，你可以回答用户的问题。内容要精简，不要超过100个字符。",
+)
 
 st.set_page_config(page_title="多轮对话 Demo", page_icon="🤖")
 st.title("🤖 多轮对话聊天 Demo")
@@ -20,7 +38,9 @@ if prompt := st.chat_input("请输入内容..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # 2. 调用你的大模型（这里先用模拟回复示范）
-    reply = f"AI：你刚才说的是：{prompt}"
+    # reply = f"AI：你刚才说的是：{prompt}"
+    result = agent.invoke(prompt)
+    reply = result.content
 
     # 3. 显示 AI 消息并保存
     st.chat_message("assistant").write(reply)
