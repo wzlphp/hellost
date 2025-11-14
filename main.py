@@ -1,158 +1,225 @@
+# 首先，我们需要给应用导入以下的库
+
+import json
 import streamlit as st
-import pandas as pd
-from datetime import time, datetime
+from pathlib import Path
 
+# 然后我们需要 Streamlit Elements 中的这些对象
+# 有关全部对象及其用法的说明请见：https://github.com/okld/streamlit-elements#getting-started
 
-# st.title("RAG 问答系统")
+from streamlit_elements import elements, dashboard, mui, editor, media, lazy, sync, nivo
 
+# 更改页面布局，让仪表盘占据整个页宽
 
-# st.header("st.*button*:sunglasses:")
+st.set_page_config(layout="wide")
 
-# if st.button("点击我"):
-#     st.write("按钮被点击了！")
-# else:
-#     st.write("按钮未被点击")
+with st.sidebar:
+    st.title("🗓️ #30DaysOfStreamlit")
+    st.header("Day 27 - Streamlit Elements")
+    st.write("Build a draggable and resizable dashboard with Streamlit Elements.")
+    st.write("---")
 
-# df = pd.DataFrame({
-#      'first column': [1, 2, 3, 4, 5],
-#      'second column': [10, 20, 30, 40, 50]
-#      })
-# st.write(df)
+    # 媒体播放器所用的 URL
+    media_url = st.text_input("Media URL", value="https://www.youtube.com/watch?v=vIQQR_yq-8I")
 
+# 初始化代码编辑器和图表的默认数据
+#
+# 在这篇教程中，我们会用到 Nivo Bump 图的数据
+# 你能在“data”标签页下获取随机的数据：https://nivo.rocks/bump/
+#
+# 如下所示，当代码编辑器发生更改时，会话状态就会被更新
+# 然后会被读入至 Nivo Bump 图并将其绘制出来
 
-# st.subheader('Slider')
+if "data" not in st.session_state:
+    st.session_state.data = Path("data.json").read_text()
 
-# age = st.slider('How old are you?', 0, 130, 25)
-# st.write("I'm ", age, 'years old')
+# 定义默认的仪表盘布局
+# 默认情况下仪表盘会分为 12 列
+#
+# 更多可用参数见：
+# https://github.com/react-grid-layout/react-grid-layout#grid-item-props
 
-# # 样例 2
+layout = [
+    # 编辑器对象定位在坐标 x=0 且 y=0 处，占据 12 列中的 6 列以及 3 行
+    dashboard.Item("editor", 0, 0, 6, 3),
+    # 图表对象定位在坐标 x=6 且 y=0 处，占据 12 列中的 6 列以及 3 行
+    dashboard.Item("chart", 6, 0, 6, 3),
+    # 媒体播放器对象定位在坐标 x=0 且 y=3 处，占据 12 列中的 6 列以及 4 行
+    dashboard.Item("media", 0, 3, 12, 4),
+]
 
-# st.subheader('Range slider')
+# 创建显示各元素的框体
 
-# values = st.slider(
-#      'Select a range of values',
-#      0.0, 100.0, (25.0, 75.0))
-# st.write('Values:', values)
+with elements("demo"):
 
-# # 样例 3
+    # 使用以上指定的布局创建新仪表盘
+    #
+    # draggableHandle 是一个 CSS 查询选择器，定义了仪表盘中可拖拽的部分
+    # 以下为将带 'draggable' 类名的元素变为可拖拽对象
+    #
+    # 更多仪表盘网格相关的可用参数请见：
+    # https://github.com/react-grid-layout/react-grid-layout#grid-layout-props
+    # https://github.com/react-grid-layout/react-grid-layout#responsive-grid-layout-props
 
-# st.subheader('Range time slider')
+    with dashboard.Grid(layout, draggableHandle=".draggable"):
 
-# appointment = st.slider(
-#      "Schedule your appointment:",
-#      value=(time(11, 30), time(12, 45)))
-# st.write("You're scheduled for:", appointment)
+        # 第一个卡片，代码编辑器
+        #
+        # 我们使用 'key' 参数来选择正确的仪表盘对象
+        #
+        # 为了让卡片的内容自动填充占满全部高度，我们将使用 flexbox CSS 样式
+        # sx 是所有 Material UI 组件均可使用的参数，用于定义其 CSS 属性
+        #
+        # 有关卡片、flexbox 和 sx 的更多信息，请见：
+        # https://mui.com/components/cards/
+        # https://mui.com/system/flexbox/
+        # https://mui.com/system/the-sx-prop/
 
-# # 样例 4
+        with mui.Card(key="editor", sx={"display": "flex", "flexDirection": "column"}):
 
-# st.subheader('Datetime slider')
+            # 为了让标题可拖拽，我们只需要将其类名设为 'draggable'
+            # 与 dashboard.Grid 当中 draggableHandle 的查询选择对应
 
-# start_time = st.slider(
-#      "When do you start?",
-#      value=datetime(2020, 1, 1, 9, 30),
-#      format="MM/DD/YY - hh:mm")
-# st.write("Start time:", start_time)
+            mui.CardHeader(title="Editor", className="draggable")
 
+            # 要使卡片内容占满全高，我们需要将 CSS 样式中 flex 的值设为 1
+            # 同时我们也想要卡片内容随卡片缩放，因此将其 minHeight 设为 0
 
-# options = st.multiselect(
-#      'What are your favorite colors',
-#      ['Green', 'Yellow', 'Red', 'Blue'],
-#      ['Yellow', 'Red'])
+            with mui.CardContent(sx={"flex": 1, "minHeight": 0}):
 
-# st.write('You selected:', options)
+                # 以下是我们的 Monaco 代码编辑器
+                #
+                # 首先，我们将其默认值设为之前初始化好的 st.session_state.data
+                # 其次，我们将设定所用的语言，这里我们设为 JSON
+                #
+                # 接下来，我们想要获取编辑器中内容的变动
+                # 查阅 Monaco 文档后，我们发现可以用 onChange 属性指定一个函数
+                # 这个函数会在每次变动发生后被调用，并且变更后的内容将被传入函数
+                # (参考 onChange: https://github.com/suren-atoyan/monaco-react#props)
+                #
+                # Streamlit Elements 提供了一个特殊的 sync() 函数
+                # 能够创建一个自动将其参数同步到 Streamlit 会话状态的回调函数
+                #
+                # 样例
+                # --------
+                # 创建一个自动将第一个参数同步至会话状态中 "data" 的回调函数：
+                # >>> editor.Monaco(onChange=sync("data"))
+                # >>> print(st.session_state.data)
+                #
+                # 创建一个自动将第二个参数同步至会话状态中 "ev" 的回调函数：
+                # >>> editor.Monaco(onChange=sync(None, "ev"))
+                # >>> print(st.session_state.ev)
+                #
+                # 创建一个自动将两个参数同步至会话状态的回调函数：
+                # >>> editor.Monaco(onChange=sync("data", "ev"))
+                # >>> print(st.session_state.data)
+                # >>> print(st.session_state.ev)
+                #
+                # 那么问题来了：onChange 会在每次发生变动时被调用
+                # 那么意味着每当你输入一个字符，整个 Streamlit 应用都会重新运行
+                #
+                # 为了避免这个问题，可以使用 lazy() 令 Streamlit Elements 等待其他事件发生
+                # （比如点击按钮）然后再将更新后的数据传给回调函数
+                #
+                # 有关 Monaco 其他可用参数的说明，请见：
+                # https://github.com/suren-atoyan/monaco-react
+                # https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneEditorConstructionOptions.html
 
+                editor.Monaco(
+                    defaultValue=st.session_state.data,
+                    language="json",
+                    onChange=lazy(sync("data"))
+                )
 
-# st.latex(r'''
-#      a + ar + a r^2 + a r^3 + \cdots + a r^{n-1} =
-#      \sum_{k=0}^{n-1} ar^k =
-#      a \left(\frac{1-r^{n}}{1-r}\right)
-#      ''')
+            with mui.CardActions:
 
+                # Monaco 编辑器已经将一个延迟回调函数绑定至 onChange 了，因此即便你更改了 Monaco 的内容
+                # Streamlit 也不会立刻接收到，因此不会每次都重新运行
+                # 因此我们需要另一个非延迟的事件来触发更新
+                #
+                # 解决方法就是创建一个在点击时回调的按钮
+                # 我们的回调函数实际上不需要做任何事
+                # 你可以创建一个空的函数，或者直接使用不带参数的 sync()
+                #
+                # 然后每当你点击按钮的时候，onClick 回调函数会被调用
+                # 而期间其他延迟调用了的回调函数也会被一并执行
 
+                mui.Button("Apply changes", onClick=sync())
 
-     
+        # 第二个卡片，Nivo Bump 图
+        # 我们将使用和第一个卡片同样的 flexbox 配置来自动调整内容高度
 
-# st.write('Contents of the `.config.toml` file of this app')
+        with mui.Card(key="chart", sx={"display": "flex", "flexDirection": "column"}):
 
-# st.code("""
-# [theme]
-# primaryColor="#F39C12"
-# backgroundColor="#2E86C1"
-# secondaryBackgroundColor="#AED6F1"
-# textColor="#FFFFFF"
-# font="monospace"
-# """)
+            # 为了让标题可拖拽，我们只需要将其类名设为 'draggable'
+            # 与 dashboard.Grid 当中 draggableHandle 的查询选择对应
 
-# number = st.sidebar.slider('Select a number:', 0, 10, 5)
-# st.write('Selected number from slider widget is:', number)
+            mui.CardHeader(title="Chart", className="draggable")
 
+            # 和前面一样，我们想要让我们的内容随着用户缩放卡片而缩放
+            # 因此将 flex 属性设为 1，minHeight 设为 0
 
-# st.write(st.secrets['username'])
-# st.write(st.secrets['password'])
+            with mui.CardContent(sx={"flex": 1, "minHeight": 0}):
 
-# st.set_page_config(layout="wide")
+                # 以下我们将绘制 Bump 图
+                #
+                # 在这个练习里，我们就借用一下 Nivo 的示例，将其用在 Streamlit Elements 里面
+                # Nivo 的示例可以在这里此页面的 'code' 标签页中找到：https://nivo.rocks/bump/
+                #
+                # data 参数接收一个字典，因此我们需要用 `json.loads()` 将 JSON 数据从字符串转化为字典对象
+                #
+                # 有关更多其他类型的 Nivo 图表，请见：
+                # https://nivo.rocks/
 
-# st.title('How to layout your Streamlit app')
+                nivo.Bump(
+                    data=json.loads(st.session_state.data),
+                    colors={ "scheme": "spectral" },
+                    lineWidth=3,
+                    activeLineWidth=6,
+                    inactiveLineWidth=3,
+                    inactiveOpacity=0.15,
+                    pointSize=10,
+                    activePointSize=16,
+                    inactivePointSize=0,
+                    pointColor={ "theme": "background" },
+                    pointBorderWidth=3,
+                    activePointBorderWidth=3,
+                    pointBorderColor={ "from": "serie.color" },
+                    axisTop={
+                        "tickSize": 5,
+                        "tickPadding": 5,
+                        "tickRotation": 0,
+                        "legend": "",
+                        "legendPosition": "middle",
+                        "legendOffset": -36
+                    },
+                    axisBottom={
+                        "tickSize": 5,
+                        "tickPadding": 5,
+                        "tickRotation": 0,
+                        "legend": "",
+                        "legendPosition": "middle",
+                        "legendOffset": 32
+                    },
+                    axisLeft={
+                        "tickSize": 5,
+                        "tickPadding": 5,
+                        "tickRotation": 0,
+                        "legend": "ranking",
+                        "legendPosition": "middle",
+                        "legendOffset": -40
+                    },
+                    margin={ "top": 40, "right": 100, "bottom": 40, "left": 60 },
+                    axisRight=None,
+                )
 
-# with st.expander('About this app'):
-#   st.write('This app shows the various ways on how you can layout your Streamlit app.')
-#   st.image('https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-darktext.png', width=250)
+        # 仪表盘的第三个元素是媒体播放器
 
-# st.sidebar.header('Input')
-# user_name = st.sidebar.text_input('What is your name?')
-# user_emoji = st.sidebar.selectbox('Choose an emoji', ['', '😄', '😆', '😊', '😍', '😴', '😕', '😱'])
-# user_food = st.sidebar.selectbox('What is your favorite food?', ['', 'Tom Yum Kung', 'Burrito', 'Lasagna', 'Hamburger', 'Pizza'])
+        with mui.Card(key="media", sx={"display": "flex", "flexDirection": "column"}):
+            mui.CardHeader(title="Media Player", className="draggable")
+            with mui.CardContent(sx={"flex": 1, "minHeight": 0}):
 
-# st.header('Output')
+                # 这个元素实现基于 ReactPlayer，它支持很多除了 YouTube 以外的媒体
+                # 你能在这里查看完整列表：https://github.com/cookpete/react-player#props
 
-# col1, col2, col3 = st.columns(3)
-
-# with col1:
-#   if user_name != '':
-#     st.write(f'👋 Hello {user_name}!')
-#   else:
-#     st.write('👈  Please enter your **name**!')
-
-# with col2:
-#   if user_emoji != '':
-#     st.write(f'{user_emoji} is your favorite **emoji**!')
-#   else:
-#     st.write('👈 Please choose an **emoji**!')
-
-# with col3:
-#   if user_food != '':
-#     st.write(f'🍴 **{user_food}** is your favorite **food**!')
-#   else:
-#     st.write('👈 Please choose your favorite **food**!')
-
-
-
-import requests
-
-st.title('🏀 Bored API app')
-
-st.sidebar.header('Input')
-selected_type = st.sidebar.selectbox('Select an activity type', ["education", "recreational", "social", "diy", "charity", "cooking", "relaxation", "music", "busywork"])
-
-suggested_activity_url = f'http://www.boredapi.com/api/activity?type={selected_type}'
-json_data = requests.get(suggested_activity_url)
-suggested_activity = json_data.json()
-
-c1, c2 = st.columns(2)
-with c1:
-  with st.expander('About this app'):
-    st.write('Are you bored? The **Bored API app** provides suggestions on activities that you can do when you are bored. This app is powered by the Bored API.')
-with c2:
-  with st.expander('JSON data'):
-    st.write(suggested_activity)
-
-st.header('Suggested activity')
-st.info(suggested_activity['activity'])
-
-col1, col2, col3 = st.columns(3)
-with col1:
-  st.metric(label='Number of Participants', value=suggested_activity['participants'], delta='')
-with col2:
-  st.metric(label='Type of Activity', value=suggested_activity['type'].capitalize(), delta='')
-with col3:
-  st.metric(label='Price', value=suggested_activity['price'], delta='')
+                media.Player(url=media_url, width="100%", height="100%", controls=True)
