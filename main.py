@@ -41,9 +41,16 @@ if prompt := st.chat_input("请输入内容..."):
 
     # 2. 调用你的大模型（这里先用模拟回复示范）
     # reply = f"AI：你刚才说的是：{prompt}"
-    result = agent.invoke({"messages":HumanMessage(content=prompt)})
-    # print(result["messages"][-1].content)
-    reply = result["messages"][-1].content
+    # result = agent.invoke({"messages":HumanMessage(content=prompt)})
+    # reply = result["messages"][-1].content
+
+    container = st.empty()
+    reply = ""
+    for token in agent.stream({"messages":HumanMessage(content=prompt)}):
+        reply += token.content
+        container.write(reply)
+
+
 
     # 3. 显示 AI 消息并保存
     st.chat_message("assistant").write(reply)
