@@ -59,7 +59,6 @@ if prompt := st.chat_input("请输入内容..."):
     # reply = result["messages"][-1].content
 
     container = st.empty()
-    st.chat_message("assistant").write("")
     reply = ""
     for data, matedata in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
         if data.content_blocks:
