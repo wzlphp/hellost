@@ -58,9 +58,9 @@ if prompt := st.chat_input("请输入内容..."):
 
     container = st.empty()
     reply = ""
-    for token in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
-        if token.content_blocks:
-            reply += token.content_blocks[0]['text']
+    for data, matedata in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
+        if data.content_blocks:
+            reply += data.content_blocks[0]['text']
             container.write(reply)
 
     st.success("回答完成")
