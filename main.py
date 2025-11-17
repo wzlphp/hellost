@@ -47,6 +47,14 @@ for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
 
+def token_get():
+    for data, matedata in agent.stream(
+        {"messages":HumanMessage(content=prompt)},
+        stream_mode="messages"
+    ):
+        if data.content_blocks:
+            yield data.content_blocks[0]['text']
+
 # 处理用户输入
 if prompt := st.chat_input("请输入内容..."):
     # 1. 先显示用户消息
@@ -58,14 +66,16 @@ if prompt := st.chat_input("请输入内容..."):
     # result = agent.invoke({"messages":HumanMessage(content=prompt)})
     # reply = result["messages"][-1].content
 
-    container = st.empty()
-    st.chat_message("assistant").write("")
-    reply = ""
-    for data, matedata in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
-        if data.content_blocks:
-            reply += data.content_blocks[0]['text']
-            logger.info(reply)
-            container.write_stream(reply)
+    # container = st.empty()
+    # st.chat_message("assistant").write("")
+    # reply = ""
+    # for data, matedata in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
+    #     if data.content_blocks:
+    #         reply += data.content_blocks[0]['text']
+    #         logger.info(reply)
+    #         container.write_stream(reply)
+
+    reply = container.write_stream(token_get())
 
     st.success("回答完成!")
     # 3. 显示 AI 消息并保存
