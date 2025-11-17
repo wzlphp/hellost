@@ -16,7 +16,7 @@ model = ChatOpenAI(
 agent = create_agent(
     model=model,
     tools=[],
-    system_prompt="你是一个专业的助手，你可以回答用户的问题。简单回答用户的问题。",
+    system_prompt="你是一个专业的助手，你可以回答用户的问题。",
 )
 
 
@@ -57,13 +57,13 @@ if prompt := st.chat_input("请输入内容..."):
     # reply = result["messages"][-1].content
 
     container = st.empty()
-    reply = ""
+    reply = st.chat_message("assistant").write("")
     for data, matedata in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
         if data.content_blocks:
             reply += data.content_blocks[0]['text']
             container.write(reply)
 
-    st.success("回答完成")
+    st.success("回答完成!")
     # 3. 显示 AI 消息并保存
-    st.chat_message("assistant").write(reply)
+    # st.chat_message("assistant").write(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
