@@ -4,6 +4,8 @@ from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
 from langchain.tools import tool
 import json
+from loguru import logger
+
  
  
 # 定义模型
@@ -62,6 +64,7 @@ if prompt := st.chat_input("请输入内容..."):
     for data, matedata in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
         if data.content_blocks:
             reply += data.content_blocks[0]['text']
+            logger.info(reply)
             container.write(reply)
 
     st.success("回答完成!")

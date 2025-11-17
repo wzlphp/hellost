@@ -2,3 +2,4 @@ streamlit
 streamlit-elements
 langchain
 langchain_openai
+loguru
