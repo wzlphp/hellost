@@ -1,4 +1,4 @@
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessageChunk, HumanMessage
 import streamlit as st
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
@@ -16,9 +16,21 @@ model = ChatOpenAI(
 agent = create_agent(
     model=model,
     tools=[],
-    system_prompt="你是一个专业的助手，你可以回答用户的问题。",
+    system_prompt="你是一个专业的助手，你可以回答用户的问题。简单回答用户的问题。",
 )
 
+
+# str = ''
+# for data, matedata in agent.stream(
+#     {"messages":HumanMessage(content="你好，我是张三。你是谁？")},
+#     stream_mode="messages"
+# ):
+#     # print(matedata)
+#     str += data.content_blocks[0]['text']
+#     print(str)
+#     print("\n")
+
+# exit()
 
 st.set_page_config(page_title="我是AI助手，有问题找我", page_icon="🤖", layout="centered")
 st.markdown("<h5 style='text-align: center;'>🤖 我是AI助手，有问题找我</h5>", unsafe_allow_html=True)
@@ -46,12 +58,12 @@ if prompt := st.chat_input("请输入内容..."):
 
     container = st.empty()
     reply = ""
-    for token in agent.stream({"messages":HumanMessage(content=prompt)}):
-        reply += token.content
-        container.write(reply)
+    for token in agent.stream({"messages":HumanMessage(content=prompt)}, stream_mode="messages"):
+        if token.content_blocks:
+            reply += token.content_blocks[0]['text']
+            container.write(reply)
 
-
-
+    st.success("回答完成")
     # 3. 显示 AI 消息并保存
     st.chat_message("assistant").write(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
