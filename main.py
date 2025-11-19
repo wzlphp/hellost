@@ -64,8 +64,9 @@ def token_get():
         stream_mode="messages",
         config={"configurable": {"thread_id": "123"}}
     ):
-        if data.content_blocks:
-            yield data.content_blocks[0]['text']
+        if hasattr(data, 'content'):
+            # yield data.content_blocks[0]['text']
+            yield data.content
 
 # 处理用户输入
 if prompt := st.chat_input("请输入内容..."):
