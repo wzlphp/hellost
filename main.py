@@ -5,6 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain.tools import tool
 import json
 from loguru import logger
+from langchain.checkpoint.memory import InMemorySaver
 
  
  
@@ -19,6 +20,7 @@ agent = create_agent(
     model=model,
     tools=[],
     system_prompt="你是一个专业的助手，你可以回答用户的问题。",
+    checkpointer=InMemorySaver(),
 )
 
 
@@ -50,7 +52,8 @@ for msg in st.session_state.messages:
 def token_get():
     for data, matedata in agent.stream(
         {"messages":HumanMessage(content=prompt)},
-        stream_mode="messages"
+        stream_mode="messages",
+        config={"configurable": {"thread_id": "123"}}
     ):
         if data.content_blocks:
             yield data.content_blocks[0]['text']
