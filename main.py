@@ -6,9 +6,17 @@ from langchain.tools import tool
 import json
 from loguru import logger
 from langgraph.checkpoint.memory import InMemorySaver
+from tavily import TavilyClient
 
- 
- 
+
+@tool('custom name')
+def tools(msg):
+    "复杂的问题，你可以使用 TavilySearchTool 来搜索。"
+    client = TavilyClient("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")
+    response = client.search(query=msg)
+    return response
+
+
 # 定义模型
 model = ChatOpenAI(
     model="deepseek/deepseek-v3.1-terminus",
@@ -18,7 +26,7 @@ model = ChatOpenAI(
 
 agent = create_agent(
     model=model,
-    tools=[],
+    tools=[tools],
     system_prompt="你是一个专业的助手，你可以回答用户的问题。",
     checkpointer=InMemorySaver(),
 )
