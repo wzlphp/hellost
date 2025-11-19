@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain.tools import tool
 import json
 from loguru import logger
-from langchain.checkpoint.memory import InMemorySaver
+from langgraph.checkpoint.memory import InMemorySaver
 
  
  
