@@ -9,10 +9,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 from tavily import TavilyClient
 
 
-@tool('custom name')
+@tool
 def tools(msg):
     "复杂的问题，你可以使用 TavilySearchTool 来搜索。"
-    logger.info(msg)
     client = TavilyClient("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")
     response = client.search(query=msg)
     return response
